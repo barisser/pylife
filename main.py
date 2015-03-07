@@ -2,7 +2,7 @@ import pygame
 import gamelogic
 import io
 
-screen_width = 1000
+screen_width = 1200
 screen_height = 800
 frame_rate = 50
 

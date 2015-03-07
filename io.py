@@ -47,7 +47,7 @@ def respond_to_inputs(event, pressed, tempdata, world_object):
 
     if pressed[pygame.K_SPACE]:
         print "GAME TURN"
-        for i in range(0,100):
-            gamelogic.game_turn(tempdata)
+        #for i in range(0,100):
+        gamelogic.game_turn(tempdata)
 
     return tempdata

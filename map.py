@@ -1,16 +1,18 @@
 import random
 import economics
 import math
+import factions
 
 land_colors = {}
-land_colors[0] = (0,0,255)
-land_colors[1] = (50, 200, 10)
+land_colors[0] = (0,0,0)
+land_colors[1] = (0,0,0)
 
 pop_growth_rate = 1.02
 pop_starvation_rate = 0.9
 
-mapy = 20
-mapx = 20
+mapy = 100
+mapx = 150
+
 
 class World:
     def __init__(self, mapx, mapy):
@@ -23,11 +25,16 @@ class World:
             self.map.append(r)
         self.mapx = mapx
         self.mapy = mapy
+        self.cities = []
+        self.factions = []
 
     def world_logic(self):
         for x in range(self.mapx):
             for y in range(self.mapy):
                 self.map[x][y].land_logic()
+
+        for f in self.factions:
+            f.faction_logic(self)
 
 class Land:
     def __init__(self):
@@ -35,57 +42,11 @@ class Land:
         self.terrain = 0
         self.altitude = 0
         self.resources = []
-        self.city = 0
+
 
     def land_logic(self):
-        if self.city == 0:
-            k=0 #do nothing
-        else:
-            self.city.city_logic(self)
+        k=0 #do nothing
 
-class City:
-    def __init__(self, pop, x, y, name):
-        self.x = x
-        self.y = y
-        self.population = pop
-        self.assets = [0] * len(economics.commodities)
-        self.money = 0
-        self.name = name
-        self.prices = [0] * len(economics.commodities)
-
-    def city_logic(self, my_land_object):
-        self.consume()
-        self.grow()
-        self.produce(my_land_object)
-        self.set_prices()
-
-
-    def consume(self):
-        for n, x in enumerate(economics.commodities):
-            need = x.per_capita_consumption * self.population
-            print need
-            self.assets[n] = self.assets[n] - need
-            if self.assets[n] < 0:
-                self.assets[n] = 0
-
-    def produce(self, my_land_object):
-        for n, x in enumerate(my_land_object.resources):
-            commodity = economics.commodities[n]
-            new_resources = x * math.pow(self.population, commodity.diminishing_returns_exponent)
-            print new_resources
-            self.assets[n] = self.assets[n] + new_resources
-
-    def grow(self):
-        if self.assets[0] > 0: #food
-            self.population = self.population * pop_growth_rate
-        else:
-            self.population = self.population * pop_starvation_rate
-        print str(self.name) + "  "+str(self.population)
-
-    def set_prices(self):
-        for n, x in enumerate(self.prices):
-            amount = self.assets[n]
-            p = economics.set_price(self.money, self.population, amount)
 
 def blank_world():
     return World(mapx, mapy)
@@ -114,10 +75,23 @@ def islands(world):
                 world.map[x][y].terrain=1
     return world
 
+def connect_cities(roads_per_city, world_object):
+    for c in range(len(world_object.cities)):
+        for i in range(0, roads_per_city):
+            destination = random.randint(0, len(world_object.cities)-1)
+            new_road = factions.Road(1, c, destination)
+            world_object.cities[c].roads.append(new_road)
+    return world_object
+
 def init_world():
-    number_of_cities_average = 8
+    global last_city_id
+    number_of_cities_average = 15
     world = plains_world()
     a = float(number_of_cities_average) / float((world.mapx * world.mapy))
+
+    default_faction = factions.Faction('The Greeks')
+    world.factions.append(default_faction)
+
     for x in range(world.mapx):
       for y in range(world.mapy):
         r = random.random()
@@ -125,5 +99,9 @@ def init_world():
           random_pop = int(random.random()*5000)
           print "CITY AT "+str(x)+", "+str(y)
           name = economics.random_city_name()
-          world.map[x][y].city = City(random_pop, x, y, name)
+
+          world.cities.append(factions.City(random_pop, x, y, name, 0))
+
+    world = connect_cities(2, world)
+
     return world

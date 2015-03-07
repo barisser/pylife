@@ -3,14 +3,15 @@ import map
 import main
 import image_set
 import math
+import factions
 
-map_screen_x_margin_left = 100
-map_screen_y_margin_bottom = 100
+map_screen_x_margin_left = 0
+map_screen_y_margin_bottom = 0
 map_screen_x_margin_right = 0
 map_screen_y_margin_top = 0
 
-tilex = 40
-tiley = 40
+tilex = 10
+tiley = 10
 
 def map_init(world_object):
     width = world_object.mapx * tilex
@@ -54,17 +55,42 @@ def render_color(screen, x, y, width, height, color):
     r = pygame.Rect(x, y, width, height)
     screen.fill(color, r)
 
+def draw_text(screen, color, text, px, py):
+    surface = image_set.font.render(text, False, (0, 128, 0))
+    textrect = surface.get_rect()
+    textrect.centerx = px
+    textrect.centery = py
+    screen.blit(surface, textrect)
+
 def render_geography(screen, px, py, land, width, height, colors):
     terrain_type = land.terrain
     color = colors[terrain_type]
     render_color(screen, px, py, width, height, color)
 
-def render_city(screen, px, py, land, width, height):
-    if land.city==0:
-      k=0 #do nothing
-    else:
-      color = (200,0,0)
-      render_color(screen, px+width/4, py+height/4, width/2, height/2, color)
+def render_city(screen, px, py, width, height, city_object, world_object):
+    color = world_object.factions[city_object.faction].color
+    size = math.pow(city_object.population, 0.5)
+    render_color(screen, px+width/2 - size/2, py+height/2 - size/2, size/2, size/2, color)
+    draw_text(screen, (250,250,250), city_object.name+"  "+str(city_object.id) , px, py)
+
+def draw_road(screen, startx, starty, endx, endy, thickness, color):
+    pygame.draw.line(screen, color, (startx, starty), (endx, endy), thickness)
+
+def draw_roads(screen, world_object, zone_width, zone_height):  #add start positions ...?
+    thickness = 5
+    color = (100,100,100)
+    for c in world_object.cities:
+        for r in c.roads:
+            if r.source == c.id:
+                d = world_object.cities[r.destination]
+            else:
+                d = world_object.cities[r.source]
+
+            startx = c.x * zone_width
+            starty = c.y * zone_height
+            endx = d.x * zone_width
+            endy = d.y * zone_height
+            draw_road(screen, startx, starty, endx, endy, thickness, color)
 
 def add_gridlines(screen, width, height, n, m):
     color = (0, 0, 0)
@@ -99,7 +125,14 @@ def render_world(screen, world_object, gridlines):
             py = start_position_y + zone_height*y
             land = world_object.map[x][y]
             render_geography(screen, px, py, land, zone_width, zone_height, colors)
-            render_city(screen, px, py, land, zone_width, zone_height)
+            #render_city(screen, px, py, land, zone_width, zone_height)
+
+    for c in world_object.cities:
+        px = c.x * zone_width + start_position_x
+        py = start_position_y + zone_height * c.y
+        render_city(screen, px, py, zone_width, zone_height, c, world_object)
 
     if gridlines:
         add_gridlines(screen, zone_width, zone_height, world_object.mapx, world_object.mapy)
+
+    draw_roads(screen, world_object, zone_width, zone_height)
