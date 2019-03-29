@@ -71,14 +71,14 @@ def render_city(screen, px, py, width, height, city_object, world_object):
     color = world_object.factions[city_object.faction].color
     size = math.pow(city_object.population, 0.5)
     render_color(screen, px+width/2 - size/2, py+height/2 - size/2, size/2, size/2, color)
-    draw_text(screen, (250,250,250), city_object.name+"  "+str(city_object.id) , px, py)
+    draw_text(screen, (250, 250, 250), city_object.name+"  "+str(city_object.id) , px, py)
 
 def draw_road(screen, startx, starty, endx, endy, thickness, color):
     pygame.draw.line(screen, color, (startx, starty), (endx, endy), thickness)
 
 def draw_roads(screen, world_object, zone_width, zone_height):  #add start positions ...?
     thickness = 5
-    color = (100,100,100)
+    color = (100, 100, 100)
     for c in world_object.cities:
         for r in c.roads:
             if r.source == c.id:
