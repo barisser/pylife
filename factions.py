@@ -13,7 +13,7 @@ class Faction:
         self.id = last_faction_id
         self.name = name
         self.cities = []
-        self.color = (random.randint(0,2525252)%255, random.randint(0,2525252)%255, random.randint(0,2525252)%255)
+        self.color = (random.randint(0, 2525252)%255, random.randint(0, 2525252)%255, random.randint(0, 2525252)%255)
 
     def faction_logic(self, world_object):
         for c in self.cities:
