@@ -10,7 +10,7 @@ def cycle(screen, tempdata):
 
 def game_turn(tempdata):
     print "END"
-    print pathfinding.calculate_path(0,1,tempdata['world_object'])
+    print pathfinding.calculate_path(0, 1, tempdata['world_object'])
 
   #  tempdata['world_object'].world_logic()
 
