@@ -4,8 +4,8 @@ import math
 import factions
 
 land_colors = {}
-land_colors[0] = (0,0,0)
-land_colors[1] = (0,0,0)
+land_colors[0] = (0, 0, 0)
+land_colors[1] = (0, 0, 0)
 
 pop_growth_rate = 1.02
 pop_starvation_rate = 0.9
